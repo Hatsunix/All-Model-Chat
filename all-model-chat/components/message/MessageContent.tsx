@@ -30,13 +30,13 @@ interface MessageContentProps {
 
 export const MessageContent: React.FC<MessageContentProps> = React.memo(({ message, onImageClick, onOpenHtmlPreview, showThoughts, baseFontSize, expandCodeBlocksByDefault, isMermaidRenderingEnabled, isGraphvizRenderingEnabled, onSuggestionClick, t, appSettings, themeId, onOpenSidePanel }) => {
     const { content, files, isLoading, thoughts, generationStartTime, audioSrc, groundingMetadata, urlContextMetadata, suggestions, isGeneratingSuggestions } = message;
-    
+
     const showPrimaryThinkingIndicator = isLoading && !content && !audioSrc && (!showThoughts || !thoughts);
     const areThoughtsVisible = message.role === 'model' && thoughts && showThoughts;
     const isQuadImageView = files && files.length === 4 && files.every(f => f.name.startsWith('generated-image-') || f.name.startsWith('edited-image-'));
 
     const lastThought = useMemo(() => parseThoughtProcess(thoughts), [thoughts]);
-    
+
     const prevIsLoadingRef = useRef(isLoading);
 
     useEffect(() => {
@@ -69,15 +69,15 @@ export const MessageContent: React.FC<MessageContentProps> = React.memo(({ messa
                     </div>
                 )
             )}
-            
+
             {areThoughtsVisible && (
                 <div className="mb-2 mt-1">
-                    <details className="group rounded-lg bg-[var(--theme-bg-tertiary)]/20 overflow-hidden transition-all duration-200 open:bg-[var(--theme-bg-tertiary)]/30 open:shadow-sm">
-                        <summary className="list-none flex select-none items-center gap-2 px-3 py-2 cursor-pointer transition-colors hover:bg-[var(--theme-bg-tertiary)]/40 focus:outline-none">
+                    <details className="group rounded-2xl bg-[var(--theme-bg-tertiary)]/10 overflow-hidden transition-all duration-200 open:bg-[var(--theme-bg-tertiary)]/15">
+                        <summary className="list-none flex select-none items-center gap-2 px-3 py-2.5 cursor-pointer transition-colors hover:bg-[var(--theme-bg-tertiary)]/20 focus:outline-none">
                             <div className="flex items-center gap-2 min-w-0 overflow-hidden">
                                 {/* Icon Area */}
                                 {isLoading && (
-                                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-300 bg-[var(--theme-bg-accent)]/10`}>
+                                    <div className={`flex items-center justify-center w-8 h-8 rounded-xl transition-colors duration-300 bg-[var(--theme-bg-accent)]/5`}>
                                         <GoogleSpinner size={20} />
                                     </div>
                                 )}
@@ -86,10 +86,10 @@ export const MessageContent: React.FC<MessageContentProps> = React.memo(({ messa
                                 <div className="flex flex-col min-w-0 justify-center">
                                     {isLoading ? (
                                         <>
-                                            <span className="text-base font-bold uppercase tracking-wider text-[var(--theme-text-secondary)] truncate opacity-90">
+                                            <span className="text-sm font-semibold tracking-wide text-[var(--theme-text-secondary)] truncate opacity-80">
                                                 {lastThought && !lastThought.isFallback ? lastThought.title : t('thinking_text')}
                                             </span>
-                                            <span className="text-xs text-[var(--theme-text-tertiary)] truncate font-mono mt-0.5">
+                                            <span className="text-xs text-[var(--theme-text-tertiary)] truncate font-mono mt-0.5 opacity-70">
                                                 {message.thinkingTimeMs !== undefined ? (
                                                     t('thinking_took_time').replace('{seconds}', Math.round(message.thinkingTimeMs / 1000).toString())
                                                 ) : (
@@ -98,34 +98,34 @@ export const MessageContent: React.FC<MessageContentProps> = React.memo(({ messa
                                             </span>
                                         </>
                                     ) : (
-                                        <span className="text-base text-[var(--theme-text-secondary)] font-medium truncate opacity-90">
-                                            {message.thinkingTimeMs !== undefined 
-                                                ? t('thinking_took_time').replace('{seconds}', Math.round(message.thinkingTimeMs / 1000).toString()) 
+                                        <span className="text-sm text-[var(--theme-text-secondary)] font-medium truncate opacity-80">
+                                            {message.thinkingTimeMs !== undefined
+                                                ? t('thinking_took_time').replace('{seconds}', Math.round(message.thinkingTimeMs / 1000).toString())
                                                 : 'Thought Process'}
                                         </span>
                                     )}
                                 </div>
                             </div>
-                            
+
                             {/* Chevron */}
-                            <div className="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full hover:bg-[var(--theme-bg-input)] transition-colors">
-                                <ChevronDown size={14} className="text-[var(--theme-text-tertiary)] transition-transform duration-300 group-open:rotate-180" strokeWidth={2}/>
+                            <div className="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full hover:bg-[var(--theme-bg-input)]/50 transition-colors">
+                                <ChevronDown size={14} className="text-[var(--theme-text-tertiary)] opacity-60 transition-transform duration-300 group-open:rotate-180" strokeWidth={2} />
                             </div>
                         </summary>
 
                         {/* Expanded Content */}
-                        <div className="px-3 pb-3 pt-2 border-t border-[var(--theme-border-secondary)]/50 animate-in fade-in slide-in-from-top-2 duration-300 text-xs">
+                        <div className="px-4 pb-4 pt-3 animate-in fade-in slide-in-from-top-2 duration-300 text-sm">
                             {isLoading && lastThought && message.thinkingTimeMs === undefined && (
-                                <div className="mb-2 p-2 rounded-md bg-[var(--theme-bg-input)]/50 border border-[var(--theme-border-secondary)]/50 flex items-start gap-2">
-                                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-[var(--theme-text-success)] text-[var(--theme-text-success)] animate-pulse flex-shrink-0 shadow-[0_0_8px_currentColor]" />
+                                <div className="mb-3 p-3 rounded-xl bg-[var(--theme-bg-input)]/30 flex items-start gap-2.5">
+                                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[var(--theme-text-success)] text-[var(--theme-text-success)] animate-pulse flex-shrink-0 shadow-[0_0_6px_currentColor] opacity-80" />
                                     <div className="min-w-0">
-                                        <span className="block text-xs font-semibold text-[var(--theme-text-primary)] mb-0.5">{lastThought.title}</span>
-                                        <span className="block text-[11px] text-[var(--theme-text-tertiary)] line-clamp-2 leading-normal">{lastThought.content}</span>
+                                        <span className="block text-sm font-medium text-[var(--theme-text-primary)] mb-0.5">{lastThought.title}</span>
+                                        <span className="block text-xs text-[var(--theme-text-secondary)] line-clamp-2 leading-relaxed">{lastThought.content}</span>
                                     </div>
                                 </div>
                             )}
 
-                            <div className="prose prose-sm max-w-none dark:prose-invert text-[var(--theme-text-secondary)] leading-relaxed markdown-body thought-process-content opacity-90">
+                            <div className="prose prose-sm max-w-none dark:prose-invert text-[var(--theme-text-secondary)] leading-relaxed markdown-body thought-process-content opacity-80">
                                 <MarkdownRenderer
                                     content={thoughts}
                                     isLoading={isLoading}
@@ -155,22 +155,22 @@ export const MessageContent: React.FC<MessageContentProps> = React.memo(({ messa
             )}
 
             {(content && (groundingMetadata || urlContextMetadata)) ? (
-              <GroundedResponse 
-                text={content} 
-                metadata={groundingMetadata} 
-                urlContextMetadata={urlContextMetadata}
-                isLoading={isLoading} 
-                onOpenHtmlPreview={onOpenHtmlPreview} 
-                expandCodeBlocksByDefault={expandCodeBlocksByDefault} 
-                onImageClick={onImageClick} 
-                isMermaidRenderingEnabled={isMermaidRenderingEnabled} 
-                isGraphvizRenderingEnabled={isGraphvizRenderingEnabled} 
-                t={t} 
-                themeId={themeId} 
-                onOpenSidePanel={onOpenSidePanel}
-              />
+                <GroundedResponse
+                    text={content}
+                    metadata={groundingMetadata}
+                    urlContextMetadata={urlContextMetadata}
+                    isLoading={isLoading}
+                    onOpenHtmlPreview={onOpenHtmlPreview}
+                    expandCodeBlocksByDefault={expandCodeBlocksByDefault}
+                    onImageClick={onImageClick}
+                    isMermaidRenderingEnabled={isMermaidRenderingEnabled}
+                    isGraphvizRenderingEnabled={isGraphvizRenderingEnabled}
+                    t={t}
+                    themeId={themeId}
+                    onOpenSidePanel={onOpenSidePanel}
+                />
             ) : content && (
-                <div className="markdown-body" style={{ fontSize: `${baseFontSize}px` }}> 
+                <div className="markdown-body" style={{ fontSize: `${baseFontSize}px` }}>
                     <MarkdownRenderer
                         content={content}
                         isLoading={isLoading}
@@ -186,13 +186,13 @@ export const MessageContent: React.FC<MessageContentProps> = React.memo(({ messa
                     />
                 </div>
             )}
-            
+
             {audioSrc && (
                 <div className="mt-2 animate-in fade-in slide-in-from-bottom-1 duration-300">
                     <AudioPlayer src={audioSrc} autoPlay={true} />
                 </div>
             )}
-            
+
             {(message.role === 'model' || (message.role === 'error' && generationStartTime)) && (
                 <PerformanceMetrics message={message} t={t} />
             )}
@@ -225,7 +225,7 @@ export const MessageContent: React.FC<MessageContentProps> = React.memo(({ messa
                     ))}
                 </div>
             )}
-            { isGeneratingSuggestions && (
+            {isGeneratingSuggestions && (
                 <div className="mt-3 flex items-center gap-2 text-xs text-[var(--theme-text-tertiary)] animate-pulse opacity-70 px-1">
                     <Loader2 size={12} className="animate-spin" strokeWidth={1.5} />
                     <span>Generating suggestions...</span>
