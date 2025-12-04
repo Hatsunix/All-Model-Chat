@@ -22,7 +22,7 @@ export const useImageEditSender = ({
     setActiveSessionId,
 }: ImageEditSenderProps) => {
     const { handleApiError } = useApiErrorHandler(updateAndPersistSessions);
-    
+
     const handleImageEditMessage = useCallback(async (
         keyToUse: string,
         activeSessionId: string | null,
@@ -42,14 +42,14 @@ export const useImageEditSender = ({
 
         let finalSessionId = activeSessionId;
         const userMessage: ChatMessage = { id: generateUniqueId(), role: 'user', content: text, files, timestamp: new Date() };
-        const modelMessage: ChatMessage = { id: modelMessageId, role: 'model', content: '', timestamp: new Date(), isLoading: true, generationStartTime: new Date() };
-        
+        const modelMessage: ChatMessage = { id: modelMessageId, role: 'model', content: '', timestamp: new Date(), isLoading: true, generationStartTime: new Date(), modelId: currentChatSettings.modelId };
+
         if (!finalSessionId) { // New Chat
             const newSessionId = generateUniqueId();
             finalSessionId = newSessionId;
             let newSessionSettings = { ...DEFAULT_CHAT_SETTINGS, ...appSettings };
             if (options.shouldLockKey) newSessionSettings.lockedApiKey = keyToUse;
-            
+
             const newSession: SavedChatSession = {
                 id: newSessionId,
                 title: "New Image Edit",
@@ -66,12 +66,12 @@ export const useImageEditSender = ({
 
                 const editIndex = effectiveEditingId ? s.messages.findIndex(m => m.id === effectiveEditingId) : -1;
                 const baseMessages = editIndex !== -1 ? s.messages.slice(0, editIndex) : s.messages;
-                
+
                 const newMessages = [...baseMessages, userMessage, modelMessage];
-                
+
                 let newTitle = s.title;
                 if (s.title === 'New Chat' || (editIndex !== -1 && s.messages.length < 3)) {
-                     newTitle = text.substring(0, 30).trim() || "Image Edit";
+                    newTitle = text.substring(0, 30).trim() || "Image Edit";
                 }
                 let updatedSettings = s.settings;
                 if (options.shouldLockKey && !s.settings.lockedApiKey) {
@@ -92,7 +92,7 @@ export const useImageEditSender = ({
         try {
             const { contentParts: promptParts } = await buildContentParts(text, imageFiles);
             const historyForApi = await createChatHistoryForApi(messages);
-            
+
             const callApi = () => geminiServiceInstance.editImage(keyToUse, currentChatSettings.modelId, historyForApi, promptParts, newAbortController.signal, aspectRatio);
 
             const apiCalls = appSettings.generateQuadImages ? [callApi(), callApi(), callApi(), callApi()] : [callApi()];
@@ -111,7 +111,7 @@ export const useImageEditSender = ({
                     const parts: Part[] = result.value;
                     let hasImagePart = false;
                     let textPartContent = '';
-                    
+
                     parts.forEach(part => {
                         if (part.text) {
                             textPartContent += part.text;
@@ -151,7 +151,7 @@ export const useImageEditSender = ({
                 const failureReason = combinedText.toLowerCase().includes("block") ? "Some images may have been blocked due to safety policies." : "Some image requests may have failed.";
                 combinedText += `\n*[Note: Only ${successfulImageCount} of 4 images were generated successfully. ${failureReason}]*`;
             } else if (successfulImageCount === 0 && combinedText.trim() === '') {
-                 combinedText = "[Error: Image generation failed with no specific message.]";
+                combinedText = "[Error: Image generation failed with no specific message.]";
             }
 
             updateAndPersistSessions(p => p.map(s => s.id === finalSessionId ? { ...s, messages: s.messages.map(m => m.id === modelMessageId ? { ...m, isLoading: false, content: combinedText.trim(), files: combinedFiles, generationEndTime: new Date() } : m) } : s));
@@ -163,6 +163,6 @@ export const useImageEditSender = ({
             activeJobs.current.delete(generationId);
         }
     }, [updateAndPersistSessions, setLoadingSessionIds, activeJobs, handleApiError, setActiveSessionId]);
-    
+
     return { handleImageEditMessage };
 };

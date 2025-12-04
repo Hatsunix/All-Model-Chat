@@ -1,7 +1,7 @@
 
 import { ModelOption } from '../types';
 
-export const DEFAULT_MODEL_ID = 'gemini-3-pro-preview'; 
+export const DEFAULT_MODEL_ID = 'gemini-3-pro-preview';
 
 export const TAB_CYCLE_MODELS: string[] = [
     'gemini-3-pro-preview',
@@ -23,18 +23,18 @@ export const THINKING_LEVELS = [
     { id: 'HIGH', name: 'High' },
 ];
 
-export const DEFAULT_THINKING_LEVEL = 'HIGH';
+export const DEFAULT_THINKING_LEVEL = 'HIGH' as const;
 
 export const THINKING_BUDGET_RANGES: { [key: string]: { min: number; max: number } } = {
     'models/gemini-flash-latest': { min: 0, max: 24576 },
     'gemini-2.5-pro': { min: 128, max: 32768 },
-    'gemini-3-pro-preview': { min: 128, max: 32768 }, 
+    'gemini-3-pro-preview': { min: 128, max: 32768 },
     'models/gemini-3-pro-preview': { min: 128, max: 32768 },
     'models/gemini-flash-lite-latest': { min: 512, max: 24576 },
 };
 
-export const DEFAULT_TEMPERATURE = 1.0; 
-export const DEFAULT_TOP_P = 0.95; 
+export const DEFAULT_TEMPERATURE = 1.0;
+export const DEFAULT_TOP_P = 0.95;
 export const DEFAULT_SHOW_THOUGHTS = true;
 export const DEFAULT_THINKING_BUDGET = -1; // -1 for auto/unlimited budget
 export const DEFAULT_TTS_VOICE = 'Zephyr';

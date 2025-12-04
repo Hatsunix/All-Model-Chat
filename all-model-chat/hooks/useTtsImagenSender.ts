@@ -22,7 +22,7 @@ export const useTtsImagenSender = ({
     setActiveSessionId,
 }: TtsImagenSenderProps) => {
     const { handleApiError } = useApiErrorHandler(updateAndPersistSessions);
-    
+
     const handleTtsImagenMessage = useCallback(async (
         keyToUse: string,
         activeSessionId: string | null,
@@ -36,20 +36,20 @@ export const useTtsImagenSender = ({
     ) => {
         const isTtsModel = currentChatSettings.modelId.includes('-tts');
         const modelMessageId = generationId;
-        
+
         let finalSessionId = activeSessionId;
 
         // Create user and model message placeholders
         const userMessage: ChatMessage = { id: generateUniqueId(), role: 'user', content: text, timestamp: new Date() };
-        const modelMessage: ChatMessage = { id: modelMessageId, role: 'model', content: '', timestamp: new Date(), isLoading: true, generationStartTime: new Date() };
-        
+        const modelMessage: ChatMessage = { id: modelMessageId, role: 'model', content: '', timestamp: new Date(), isLoading: true, generationStartTime: new Date(), modelId: currentChatSettings.modelId };
+
         // Handle session creation or update in a single atomic operation
         if (!finalSessionId) { // New Chat
             const newSessionId = generateUniqueId();
             finalSessionId = newSessionId;
             let newSessionSettings = { ...DEFAULT_CHAT_SETTINGS, ...appSettings };
             if (options.shouldLockKey) newSessionSettings.lockedApiKey = keyToUse;
-            
+
             const newSession: SavedChatSession = {
                 id: newSessionId,
                 title: "New Chat",
@@ -89,7 +89,7 @@ export const useTtsImagenSender = ({
                 if (newAbortController.signal.aborted) throw new Error("aborted");
                 const wavUrl = pcmBase64ToWavUrl(base64Pcm);
                 updateAndPersistSessions(p => p.map(s => s.id === finalSessionId ? { ...s, messages: s.messages.map(m => m.id === modelMessageId ? { ...m, isLoading: false, content: text, audioSrc: wavUrl, generationEndTime: new Date() } : m) } : s));
-                
+
                 if (appSettings.isCompletionNotificationEnabled && document.hidden) {
                     showNotification('Audio Ready', { body: 'Text-to-speech audio has been generated.', icon: APP_LOGO_SVG_DATA_URI });
                 }
@@ -134,6 +134,6 @@ export const useTtsImagenSender = ({
             activeJobs.current.delete(generationId);
         }
     }, [updateAndPersistSessions, setLoadingSessionIds, activeJobs, handleApiError, setActiveSessionId]);
-    
+
     return { handleTtsImagenMessage };
 };

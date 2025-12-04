@@ -3,6 +3,7 @@ import { ChatMessage, UploadedFile, ThemeColors, AppSettings, SideViewContent } 
 import { MessageContent } from './MessageContent';
 import { translations } from '../../utils/appUtils';
 import { MessageActions } from './MessageActions';
+import GeminiIcon from '../../assets/gemini.svg';
 
 interface MessageProps {
     message: ChatMessage;
@@ -75,6 +76,8 @@ export const Message: React.FC<MessageProps> = React.memo((props) => {
     }
 
     // AI message: no bubble, bottom toolbar
+    const modelName = message.modelId || 'Gemini';
+
     return (
         <div
             className="relative message-container-animate group/message"
@@ -90,6 +93,14 @@ export const Message: React.FC<MessageProps> = React.memo((props) => {
             )}
 
             <div className="flex flex-col gap-2">
+                {/* AI Header: Icon + Model Name */}
+                {!isGrouped && (
+                    <div className="flex items-center gap-2 mb-1">
+                        <img src={GeminiIcon} alt="AI" width={20} height={20} className="flex-shrink-0" />
+                        <span className="text-sm font-medium text-[var(--theme-text-secondary)]">{modelName}</span>
+                    </div>
+                )}
+
                 <div className="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl">
                     <MessageContent {...props} />
                 </div>

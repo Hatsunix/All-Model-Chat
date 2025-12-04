@@ -68,7 +68,7 @@ export const useMessageSender = (props: MessageSenderProps) => {
         const textToUse = overrideOptions?.text ?? '';
         const filesToUse = overrideOptions?.files ?? selectedFiles;
         const effectiveEditingId = overrideOptions?.editingId ?? editingMessageId;
-        
+
         const sessionToUpdate = currentChatSettings;
         const activeModelId = sessionToUpdate.modelId;
         const isTtsModel = activeModelId.includes('-tts');
@@ -80,30 +80,30 @@ export const useMessageSender = (props: MessageSenderProps) => {
 
         if (!textToUse.trim() && !isTtsModel && !isImagenModel && filesToUse.filter(f => f.uploadState === 'active').length === 0) return;
         if ((isTtsModel || isImagenModel || isImageEditModel) && !textToUse.trim()) return;
-        if (filesToUse.some(f => f.isProcessing || (f.uploadState !== 'active' && !f.error) )) { 
+        if (filesToUse.some(f => f.isProcessing || (f.uploadState !== 'active' && !f.error))) {
             logService.warn("Send message blocked: files are still processing.");
-            setAppFileError("Wait for files to finish processing."); 
-            return; 
+            setAppFileError("Wait for files to finish processing.");
+            return;
         }
-        
+
         setAppFileError(null);
 
-        if (!activeModelId) { 
+        if (!activeModelId) {
             logService.error("Send message failed: No model selected.");
             const errorMsg: ChatMessage = { id: generateUniqueId(), role: 'error', content: 'No model selected.', timestamp: new Date() };
             const newSession: SavedChatSession = { id: generateUniqueId(), title: "Error", messages: [errorMsg], settings: { ...DEFAULT_CHAT_SETTINGS, ...appSettings }, timestamp: Date.now() };
             updateAndPersistSessions(p => [newSession, ...p]);
             setActiveSessionId(newSession.id);
-            return; 
+            return;
         }
 
         const keyResult = getKeyForRequest(appSettings, sessionToUpdate);
         if ('error' in keyResult) {
             logService.error("Send message failed: API Key not configured.");
-             const errorMsg: ChatMessage = { id: generateUniqueId(), role: 'error', content: keyResult.error, timestamp: new Date() };
-             const newSession: SavedChatSession = { id: generateUniqueId(), title: "API Key Error", messages: [errorMsg], settings: { ...DEFAULT_CHAT_SETTINGS, ...appSettings }, timestamp: Date.now() };
-             updateAndPersistSessions(p => [newSession, ...p]);
-             setActiveSessionId(newSession.id);
+            const errorMsg: ChatMessage = { id: generateUniqueId(), role: 'error', content: keyResult.error, timestamp: new Date() };
+            const newSession: SavedChatSession = { id: generateUniqueId(), title: "API Key Error", messages: [errorMsg], settings: { ...DEFAULT_CHAT_SETTINGS, ...appSettings }, timestamp: Date.now() };
+            updateAndPersistSessions(p => [newSession, ...p]);
+            setActiveSessionId(newSession.id);
             return;
         }
         const { key: keyToUse, isNewKey } = keyResult;
@@ -112,7 +112,7 @@ export const useMessageSender = (props: MessageSenderProps) => {
         const newAbortController = new AbortController();
         const generationId = generateUniqueId();
         const generationStartTime = new Date();
-        
+
         if (appSettings.isAutoScrollOnSendEnabled) {
             userScrolledUp.current = false;
         }
@@ -125,7 +125,7 @@ export const useMessageSender = (props: MessageSenderProps) => {
             }
             return;
         }
-        
+
         if (isImageEditModel) {
             const editIndex = effectiveEditingId ? messages.findIndex(m => m.id === effectiveEditingId) : -1;
             const historyMessages = editIndex !== -1 ? messages.slice(0, editIndex) : messages;
@@ -135,14 +135,14 @@ export const useMessageSender = (props: MessageSenderProps) => {
             }
             return;
         }
-        
+
         const successfullyProcessedFiles = filesToUse.filter(f => f.uploadState === 'active' && !f.error && !f.isProcessing);
         const { contentParts: promptParts, enrichedFiles } = await buildContentParts(textToUse.trim(), successfullyProcessedFiles);
-        
+
         let finalSessionId = activeSessionId;
-        
+
         const userMessageContent: ChatMessage = { id: generateUniqueId(), role: 'user', content: textToUse.trim(), files: enrichedFiles.length ? enrichedFiles : undefined, timestamp: new Date() };
-        const modelMessageContent: ChatMessage = { id: generationId, role: 'model', content: '', timestamp: new Date(), isLoading: true, generationStartTime: generationStartTime };
+        const modelMessageContent: ChatMessage = { id: generationId, role: 'model', content: '', timestamp: new Date(), isLoading: true, generationStartTime: generationStartTime, modelId: activeModelId };
 
         // Perform a single, atomic state update for adding messages and creating a new session if necessary.
         if (!finalSessionId) { // New Chat
@@ -150,7 +150,7 @@ export const useMessageSender = (props: MessageSenderProps) => {
             finalSessionId = newSessionId;
             let newSessionSettings = { ...DEFAULT_CHAT_SETTINGS, ...appSettings };
             if (shouldLockKey) newSessionSettings.lockedApiKey = keyToUse;
-            
+
             userMessageContent.cumulativeTotalTokens = 0;
             const newSession: SavedChatSession = { id: newSessionId, title: "New Chat", messages: [userMessageContent, modelMessageContent], timestamp: Date.now(), settings: newSessionSettings };
             updateAndPersistSessions(p => [newSession, ...p.filter(s => s.messages.length > 0)]);
@@ -162,7 +162,7 @@ export const useMessageSender = (props: MessageSenderProps) => {
 
                 const editIndex = effectiveEditingId ? s.messages.findIndex(m => m.id === effectiveEditingId) : -1;
                 const baseMessages = editIndex !== -1 ? s.messages.slice(0, editIndex) : [...s.messages];
-                
+
                 userMessageContent.cumulativeTotalTokens = baseMessages.length > 0 ? (baseMessages[baseMessages.length - 1].cumulativeTotalTokens || 0) : 0;
                 const newMessages = [...baseMessages, userMessageContent, modelMessageContent];
 
@@ -181,16 +181,16 @@ export const useMessageSender = (props: MessageSenderProps) => {
         if (editingMessageId) {
             setEditingMessageId(null);
         }
-        
+
         if (promptParts.length === 0) {
-             setLoadingSessionIds(prev => { const next = new Set(prev); next.delete(finalSessionId!); return next; });
-             activeJobs.current.delete(generationId);
-             return; 
+            setLoadingSessionIds(prev => { const next = new Set(prev); next.delete(finalSessionId!); return next; });
+            activeJobs.current.delete(generationId);
+            return;
         }
-        
+
         // Pass generationStartTime by value to create a closure-safe handler
         const { streamOnError, streamOnComplete, streamOnPart, onThoughtChunk } = getStreamHandlers(finalSessionId!, generationId, newAbortController, generationStartTime, sessionToUpdate);
-        
+
         setLoadingSessionIds(prev => new Set(prev).add(finalSessionId!));
         activeJobs.current.set(generationId, newAbortController);
 
@@ -201,11 +201,11 @@ export const useMessageSender = (props: MessageSenderProps) => {
             logService.info("Handling message edit: creating temporary chat object for this turn.");
             const baseMessagesForApi = messages.slice(0, messages.findIndex(m => m.id === effectiveEditingId));
             const historyForChat = await createChatHistoryForApi(baseMessagesForApi);
-            
+
             // Fix: Use appSettings prop directly to avoid stale DB state race condition
             const shouldUseProxy = appSettings.useCustomApiConfig && appSettings.useApiProxy;
             const apiProxyUrl = shouldUseProxy ? appSettings.apiProxyUrl : null;
-            
+
             const ai = getApiClient(keyToUse, apiProxyUrl);
             chatToUse = ai.chats.create({
                 model: activeModelId,
@@ -222,7 +222,7 @@ export const useMessageSender = (props: MessageSenderProps) => {
                 ),
             });
         }
-        
+
         if (!chatToUse) {
             logService.error("Send message failed: Chat object not initialized.");
             setAppFileError("Chat is not ready, please wait a moment and try again.");
@@ -231,10 +231,10 @@ export const useMessageSender = (props: MessageSenderProps) => {
 
         if (appSettings.isStreamingEnabled) {
             await geminiServiceInstance.sendMessageStream(chatToUse, promptParts, newAbortController.signal, streamOnPart, onThoughtChunk, streamOnError, streamOnComplete);
-        } else { 
+        } else {
             await geminiServiceInstance.sendMessageNonStream(chatToUse, promptParts, newAbortController.signal, streamOnError, (parts, thoughts, usage, grounding, urlContext) => {
-                for(const part of parts) streamOnPart(part);
-                if(thoughts) onThoughtChunk(thoughts);
+                for (const part of parts) streamOnPart(part);
+                if (thoughts) onThoughtChunk(thoughts);
                 streamOnComplete(usage, grounding, urlContext);
             });
         }
