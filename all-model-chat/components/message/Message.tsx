@@ -1,5 +1,4 @@
-
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ChatMessage, UploadedFile, ThemeColors, AppSettings, SideViewContent } from '../../types';
 import { MessageContent } from './MessageContent';
 import { translations } from '../../utils/appUtils';
@@ -12,12 +11,12 @@ interface MessageProps {
     messageIndex: number;
     onEditMessage: (messageId: string) => void;
     onDeleteMessage: (messageId: string) => void;
-    onRetryMessage: (messageId: string) => void; 
+    onRetryMessage: (messageId: string) => void;
     onEditMessageContent: (message: ChatMessage) => void;
-    onImageClick: (file: UploadedFile) => void; // Renamed to onFileClick in logic, kept name for props compat
+    onImageClick: (file: UploadedFile) => void;
     onOpenHtmlPreview: (html: string, options?: { initialTrueFullscreen?: boolean }) => void;
     showThoughts: boolean;
-    themeColors: ThemeColors; 
+    themeColors: ThemeColors;
     themeId: string;
     baseFontSize: number;
     expandCodeBlocksByDefault: boolean;
@@ -32,39 +31,73 @@ interface MessageProps {
 }
 
 export const Message: React.FC<MessageProps> = React.memo((props) => {
-    const { message, prevMessage, messageIndex, t } = props;
-    
+    const { message, prevMessage, messageIndex } = props;
+
     const isGrouped = prevMessage &&
         prevMessage.role === message.role &&
         !prevMessage.isLoading &&
         !message.isLoading &&
         (new Date(message.timestamp).getTime() - new Date(prevMessage.timestamp).getTime() < 5 * 60 * 1000);
 
-    const isModelThinkingOrHasThoughts = message.role === 'model' && (message.isLoading || (message.thoughts && props.showThoughts));
-    
-    const messageContainerClasses = `flex items-start gap-2 sm:gap-3 group ${isGrouped ? 'mt-1.5' : 'mt-6'} ${message.role === 'user' ? 'justify-end' : 'justify-start'}`;
-    
-    const bubbleClasses = `w-fit max-w-[calc(100%-2.5rem)] sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl px-4 py-3 sm:px-5 sm:py-4 shadow-sm flex flex-col min-w-0 transition-all duration-200 ${isModelThinkingOrHasThoughts ? 'sm:min-w-[320px]' : ''}`;
-
-    const roleSpecificBubbleClasses = {
-        user: 'bg-[var(--theme-bg-user-message)] text-[var(--theme-bg-user-message-text)] rounded-2xl rounded-tr-sm border border-transparent',
-        model: 'bg-[var(--theme-bg-model-message)] text-[var(--theme-bg-model-message-text)] rounded-2xl rounded-tl-sm border border-[var(--theme-border-secondary)]',
-        error: 'bg-[var(--theme-bg-error-message)] text-[var(--theme-bg-error-message-text)] rounded-2xl border border-transparent',
+    // Format timestamp
+    const formatTimestamp = (date: Date) => {
+        const now = new Date();
+        const msgDate = new Date(date);
+        const isToday = now.toDateString() === msgDate.toDateString();
+        const timeStr = msgDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        return isToday ? `Today at ${timeStr}` : msgDate.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     };
 
+    // User message: bubble style
+    if (message.role === 'user') {
+        return (
+            <div
+                className="relative message-container-animate group/message"
+                style={{ animationDelay: `${Math.min(messageIndex * 50, 500)}ms` }}
+                data-message-id={message.id}
+                data-message-role={message.role}
+            >
+                {/* Timestamp on hover */}
+                <div className="text-xs text-[var(--theme-text-tertiary)] text-right mb-1 opacity-0 group-hover/message:opacity-100 transition-opacity">
+                    {formatTimestamp(message.timestamp)}
+                </div>
+
+                <div className="flex items-start gap-2 justify-end">
+                    <div className="flex-shrink-0 opacity-0 group-hover/message:opacity-100 transition-opacity">
+                        <MessageActions {...props} isGrouped={isGrouped} />
+                    </div>
+                    <div className="w-fit max-w-[calc(100%-2.5rem)] sm:max-w-3xl lg:max-w-4xl px-4 py-3 sm:px-5 sm:py-4 bg-[var(--theme-bg-user-message)] text-[var(--theme-bg-user-message-text)] rounded-2xl rounded-tr-sm shadow-sm">
+                        <MessageContent {...props} />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // AI message: no bubble, bottom toolbar
     return (
-        <div 
-            className="relative message-container-animate"
+        <div
+            className="relative message-container-animate group/message"
             style={{ animationDelay: `${Math.min(messageIndex * 50, 500)}ms` }}
-            data-message-id={message.id} 
+            data-message-id={message.id}
             data-message-role={message.role}
         >
-            <div className={`${messageContainerClasses}`}>
-                {message.role !== 'user' && <MessageActions {...props} isGrouped={isGrouped} />}
-                <div className={`${bubbleClasses} ${roleSpecificBubbleClasses[message.role]}`}>
+            {/* Timestamp on hover */}
+            {!isGrouped && (
+                <div className="text-xs text-[var(--theme-text-tertiary)] mb-1 opacity-0 group-hover/message:opacity-100 transition-opacity">
+                    {formatTimestamp(message.timestamp)}
+                </div>
+            )}
+
+            <div className="flex flex-col gap-2">
+                <div className="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl">
                     <MessageContent {...props} />
                 </div>
-                {message.role === 'user' && <MessageActions {...props} isGrouped={isGrouped} />}
+
+                {/* Bottom toolbar */}
+                <div className="opacity-0 group-hover/message:opacity-100 transition-opacity">
+                    <MessageActions {...props} isGrouped={isGrouped} />
+                </div>
             </div>
         </div>
     );
