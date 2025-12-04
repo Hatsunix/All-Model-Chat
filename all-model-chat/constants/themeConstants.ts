@@ -25,8 +25,8 @@ export interface ThemeColors {
   textPrimary: string;
   textSecondary: string;
   textTertiary: string;
-  textAccent: string; 
-  textDanger: string; 
+  textAccent: string;
+  textDanger: string;
   textLink: string;
   textCode: string;
   bgUserMessageText: string;
@@ -47,14 +47,14 @@ export interface ThemeColors {
   iconUser: string;
   iconModel: string;
   iconError: string;
-  iconThought: string; 
-  iconSettings: string; 
-  iconClearChat: string; 
-  iconSend: string; 
-  iconAttach: string; 
-  iconStop: string; 
-  iconEdit: string; 
-  iconHistory: string; 
+  iconThought: string;
+  iconSettings: string;
+  iconClearChat: string;
+  iconSend: string;
+  iconAttach: string;
+  iconStop: string;
+  iconEdit: string;
+  iconHistory: string;
 }
 
 export interface Theme {
@@ -68,14 +68,14 @@ export const ONYX_THEME_COLORS: ThemeColors = {
   bgPrimary: '#09090b', // Zinc 950 - Main Content
   bgSecondary: '#000000', // True Black - Sidebar/Header (Framing effect)
   bgTertiary: '#18181b', // Zinc 900 - Hover states
-  bgAccent: '#3b82f6', // Blue 500 - Vibrant Accent
-  bgAccentHover: '#2563eb', // Blue 600
+  bgAccent: '#52525b', // Zinc 600 - Neutral accent (was Blue 500)
+  bgAccentHover: '#3f3f46', // Zinc 700
   bgDanger: '#7f1d1d', // Red 900
   bgDangerHover: '#991b1b',
   bgInput: '#121214', // Zinc 925 - Very deep input area
   bgCodeBlock: '#121214', // Deep subtle grey for code
   bgCodeBlockHeader: '#1a1a1c', // Slightly lighter header
-  bgUserMessage: '#2563eb', // Blue 600 - Classic user bubble
+  bgUserMessage: '#27272a', // Zinc 800 - Neutral user bubble (was Blue 600)
   bgModelMessage: 'transparent',
   bgErrorMessage: 'rgba(127, 29, 29, 0.25)',
   bgSuccess: 'rgba(6, 78, 59, 0.25)',
@@ -100,7 +100,7 @@ export const ONYX_THEME_COLORS: ThemeColors = {
   // Borders
   borderPrimary: '#18181b', // Zinc 900 - blending more with tertiary
   borderSecondary: '#27272a', // Zinc 800 - Slightly lighter for visible borders
-  borderFocus: '#3b82f6', // Blue 500
+  borderFocus: '#71717a', // Zinc 500 (was Blue 500)
 
   // Scrollbar
   scrollbarThumb: '#27272a',
@@ -150,8 +150,8 @@ export const PEARL_THEME_COLORS: ThemeColors = {
   textDanger: '#DF3434', // Red (was #FFFFFF, which is invisible on light backgrounds)
   textLink: '#2563eb', // Blue 600 (was #000000)
   textCode: '#000000', // Black (was #40414f)
-  bgUserMessageText: '#000000', 
-  bgModelMessageText: '#000000', 
+  bgUserMessageText: '#000000',
+  bgModelMessageText: '#000000',
   bgErrorMessageText: '#DF3434',
 
   // Borders

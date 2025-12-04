@@ -23,9 +23,11 @@ const UserIcon: React.FC = () => {
     return <User size={size} className="text-[var(--theme-icon-user)] flex-shrink-0" strokeWidth={2} />;
 };
 
+import GeminiIcon from '../../assets/gemini.svg';
+
 const BotIcon: React.FC = () => {
     const size = useResponsiveValue(24, 29);
-    return <Bot size={size} className="text-[var(--theme-icon-model)] flex-shrink-0" strokeWidth={2} />;
+    return <img src={GeminiIcon} alt="AI" width={size} height={size} className="flex-shrink-0" />;
 };
 
 const ErrorMsgIcon: React.FC = () => {
@@ -64,10 +66,10 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
     themeId,
     t
 }) => {
-    const actionIconSize = useResponsiveValue(15, 16); 
+    const actionIconSize = useResponsiveValue(15, 16);
     const showRetryButton = (message.role === 'model' || (message.role === 'error' && message.generationStartTime));
     const isThisMessageLoadingTts = ttsMessageId === message.id;
-    
+
     // Enhanced button styling: lighter default, distinct hover, rounded corners
     const actionButtonClasses = "p-1.5 rounded-lg text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-border-focus)] opacity-80 hover:opacity-100 hover:scale-105 active:scale-95";
 
@@ -90,71 +92,71 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
                     </>
                 )}
             </div>
-            
+
             {/* Container for actions - Fades in on group hover with a subtle slide effect */}
             <div
                 className="message-actions flex flex-col items-center gap-1 mt-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-300 ease-in-out translate-y-1 group-hover:translate-y-0"
             >
                 {message.role === 'user' && !message.isLoading && (
-                    <button 
-                        onClick={() => onEditMessage(message.id)} 
-                        title={t('edit')} 
-                        aria-label={t('edit')} 
+                    <button
+                        onClick={() => onEditMessage(message.id)}
+                        title={t('edit')}
+                        aria-label={t('edit')}
                         className={actionButtonClasses}
                     >
                         <Edit3 size={actionIconSize} strokeWidth={2} />
                     </button>
                 )}
-                
+
                 {showRetryButton && (
-                    <button 
-                        onClick={() => onRetryMessage(message.id)} 
-                        title={message.isLoading ? t('retry_and_stop_button_title') : t('retry_button_title')} 
-                        aria-label={message.isLoading ? t('retry_and_stop_button_title') : t('retry_button_title')} 
+                    <button
+                        onClick={() => onRetryMessage(message.id)}
+                        title={message.isLoading ? t('retry_and_stop_button_title') : t('retry_button_title')}
+                        aria-label={message.isLoading ? t('retry_and_stop_button_title') : t('retry_button_title')}
                         className={actionButtonClasses}
                     >
                         <RotateCw size={actionIconSize} strokeWidth={2} />
                     </button>
                 )}
-                
+
                 {(message.content || message.thoughts) && !message.isLoading && (
-                    <MessageCopyButton 
-                        textToCopy={message.content} 
-                        t={t} 
-                        className={actionButtonClasses} 
-                        iconSize={actionIconSize} 
+                    <MessageCopyButton
+                        textToCopy={message.content}
+                        t={t}
+                        className={actionButtonClasses}
+                        iconSize={actionIconSize}
                     />
                 )}
-                
+
                 {message.content && !message.isLoading && message.role === 'model' && !message.audioSrc && (
                     <>
-                        <button 
-                            onClick={() => onTextToSpeech(message.id, message.content)} 
-                            disabled={!!ttsMessageId} 
-                            title="Read aloud" 
-                            aria-label="Read message aloud" 
+                        <button
+                            onClick={() => onTextToSpeech(message.id, message.content)}
+                            disabled={!!ttsMessageId}
+                            title="Read aloud"
+                            aria-label="Read message aloud"
                             className={`${actionButtonClasses} disabled:opacity-30 disabled:cursor-not-allowed`}
                         >
                             {isThisMessageLoadingTts ? <Loader2 size={actionIconSize} className="animate-spin" strokeWidth={2} /> : <Volume2 size={actionIconSize} strokeWidth={2} />}
                         </button>
-                        <ExportMessageButton 
+                        <ExportMessageButton
                             message={message}
                             sessionTitle={sessionTitle}
                             messageIndex={messageIndex}
-                            themeColors={themeColors} 
-                            themeId={themeId} 
-                            t={t} 
-                            className={actionButtonClasses} 
-                            iconSize={actionIconSize} 
+                            themeColors={themeColors}
+                            themeId={themeId}
+                            t={t}
+                            className={actionButtonClasses}
+                            iconSize={actionIconSize}
                         />
                     </>
                 )}
-                
+
                 {!message.isLoading && (
-                    <button 
-                        onClick={() => onDeleteMessage(message.id)} 
-                        title={t('delete')} 
-                        aria-label={t('delete')} 
+                    <button
+                        onClick={() => onDeleteMessage(message.id)}
+                        title={t('delete')}
+                        aria-label={t('delete')}
                         className={`${actionButtonClasses} hover:text-[var(--theme-text-danger)] hover:bg-[var(--theme-bg-danger)]/10`}
                     >
                         <Trash2 size={actionIconSize} strokeWidth={2} />

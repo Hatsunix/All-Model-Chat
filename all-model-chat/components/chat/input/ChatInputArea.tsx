@@ -79,27 +79,27 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     // We only apply opacity/pointer-events-none if disabled AND NOT recording.
     const isUIBlocked = inputProps.disabled && !isAnimatingSend && !isRecording;
 
-    const wrapperClass = isFullscreen 
-        ? "fixed inset-0 z-[2000] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] p-4 sm:p-6 flex flex-col fullscreen-enter-animation" 
+    const wrapperClass = isFullscreen
+        ? "fixed inset-0 z-[2000] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] p-4 sm:p-6 flex flex-col fullscreen-enter-animation"
         : `bg-transparent ${isUIBlocked ? 'opacity-30 pointer-events-none' : ''}`;
 
     const innerContainerClass = isFullscreen
         ? "w-full max-w-6xl mx-auto flex flex-col h-full"
-        : `mx-auto w-full ${!isPipActive ? 'max-w-4xl' : ''} px-2 sm:px-3 pt-1 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)]`;
+        : `mx-auto w-full ${!isPipActive ? 'max-w-3xl' : ''} px-4 sm:px-6 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]`;
 
     const formClass = isFullscreen
         ? "flex-grow flex flex-col relative min-h-0"
         : `relative ${isAnimatingSend ? 'form-send-animate' : ''}`;
 
     const inputContainerClass = isFullscreen
-        ? "flex flex-col gap-2 rounded-none sm:rounded-[26px] border-0 sm:border border-[var(--theme-border-secondary)] bg-[var(--theme-bg-input)] px-4 py-4 shadow-none h-full transition-all duration-200 relative"
-        : "flex flex-col gap-2 rounded-[26px] border border-[var(--theme-border-secondary)] bg-[var(--theme-bg-input)] p-3 sm:p-4 shadow-lg transition-all duration-300 focus-within:border-[var(--theme-border-focus)] relative";
+        ? "flex flex-col gap-2 rounded-none sm:rounded-[28px] border-0 sm:border border-white/10 bg-[var(--theme-bg-input)]/80 backdrop-blur-xl px-4 py-4 shadow-none h-full transition-all duration-200 relative"
+        : "flex flex-col gap-2.5 rounded-[28px] border border-white/10 bg-[var(--theme-bg-input)]/70 backdrop-blur-xl px-4 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all duration-300 focus-within:shadow-[0_8px_40px_rgba(0,0,0,0.18)] focus-within:border-white/20 relative";
 
     return (
         <div className={wrapperClass} aria-hidden={isUIBlocked}>
             <div className={innerContainerClass}>
                 <ChatInputToolbar {...toolbarProps} />
-                
+
                 <form onSubmit={formProps.onSubmit} className={formClass}>
                     <SlashCommandMenu
                         isOpen={slashCommandProps.isOpen}
@@ -112,10 +112,10 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                         {fileDisplayProps.selectedFiles.length > 0 && (
                             <div className="flex gap-2 overflow-x-auto pb-2 mb-1 custom-scrollbar px-1">
                                 {fileDisplayProps.selectedFiles.map(file => (
-                                    <SelectedFileDisplay 
-                                        key={file.id} 
-                                        file={file} 
-                                        onRemove={fileDisplayProps.onRemove} 
+                                    <SelectedFileDisplay
+                                        key={file.id}
+                                        file={file}
+                                        onRemove={fileDisplayProps.onRemove}
                                         onCancelUpload={fileDisplayProps.onCancelUpload}
                                         onConfigure={fileDisplayProps.onConfigure}
                                         onPreview={fileDisplayProps.onPreview}
@@ -123,7 +123,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                                 ))}
                             </div>
                         )}
-                        
+
                         <textarea
                             ref={inputProps.textareaRef}
                             value={inputProps.value}
@@ -142,25 +142,25 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                         />
                         <div className="flex items-center justify-between w-full flex-shrink-0 mt-auto pt-1">
                             <ChatInputActions {...actionsProps} />
-                            
+
                             {/* Hidden inputs for file selection, triggered by AttachmentMenu */}
-                            <input 
-                                type="file" 
-                                ref={fileInputRefs.fileInputRef} 
-                                onChange={fileInputRefs.handleFileChange} 
-                                accept={ALL_SUPPORTED_MIME_TYPES.join(',')} 
-                                className="hidden" 
-                                aria-hidden="true" 
-                                multiple 
+                            <input
+                                type="file"
+                                ref={fileInputRefs.fileInputRef}
+                                onChange={fileInputRefs.handleFileChange}
+                                accept={ALL_SUPPORTED_MIME_TYPES.join(',')}
+                                className="hidden"
+                                aria-hidden="true"
+                                multiple
                             />
-                            <input 
-                                type="file" 
-                                ref={fileInputRefs.imageInputRef} 
-                                onChange={fileInputRefs.handleFileChange} 
-                                accept={SUPPORTED_IMAGE_MIME_TYPES.join(',')} 
-                                className="hidden" 
-                                aria-hidden="true" 
-                                multiple 
+                            <input
+                                type="file"
+                                ref={fileInputRefs.imageInputRef}
+                                onChange={fileInputRefs.handleFileChange}
+                                accept={SUPPORTED_IMAGE_MIME_TYPES.join(',')}
+                                className="hidden"
+                                aria-hidden="true"
+                                multiple
                             />
                             <input
                                 type="file"
